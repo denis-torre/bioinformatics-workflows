@@ -13,7 +13,7 @@ def createFile(input, output):
 #############
 ### Files
 #############
-fastq_path = '../data/fastq/*.fastq'
+fastq_path = '../data/samples/*.fastq'
 genome_path = '../data/genome.fa'
 
 ########################################
