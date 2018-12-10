@@ -28,7 +28,7 @@ genome_path = '../data/genome.fa'
            add_inputs(genome_path),
            r'1-counts/\1-counts.txt')
 
-def getCounts(infile, outfile):
+def alignReads(infile, outfile):
 
     createFile(infile, outfile)
 
@@ -39,7 +39,7 @@ def getCounts(infile, outfile):
 @follows(mkdir('2-merged'))
 
 # Merge - many to 1 operation
-@merge(getCounts,
+@merge(alignReads,
        '2-merged/counts.txt')
 
 def mergeCounts(infile, outfile):
@@ -58,7 +58,7 @@ def mergeCounts(infile, outfile):
            '3-groups/group*.txt',
            '3-groups/group')
 
-def splitData(infile, outfiles, outfileRoot):
+def splitGroups(infile, outfiles, outfileRoot):
 
     for i in range(1, 6):
         outfile = '{outfileRoot}{i}.txt'.format(**locals())
@@ -71,7 +71,7 @@ def splitData(infile, outfiles, outfileRoot):
 @follows(mkdir('4-differential_expression'))
 
 # Combinations - many to many operation
-@combinations(splitData,
+@combinations(splitGroups,
               formatter(),
               2,
               '4-differential_expression/{basename[0][0]}_vs_{basename[1][0]}.txt')
@@ -99,4 +99,10 @@ def mergeResults(infile, outfile):
 #############
 ### Run
 #############
-pipeline_run(getCounts)
+pipeline_run()
+
+#############
+### Print
+#############
+with open('pipeline.png', 'wb') as openfile:
+      pipeline_printout_graph(openfile, output_format='png')
