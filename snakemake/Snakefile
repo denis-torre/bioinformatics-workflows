@@ -1,7 +1,7 @@
-rule alignReads:
+rule bwa_map:
     input:
-        "../data/genome.fa",
-        "../data/samples/{sample}.fastq"
+        "data/genome.fa",
+        "data/samples/{sample}.fastq"
     output:
         "mapped_reads/{sample}.bam"
     shell:
