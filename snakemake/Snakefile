@@ -1,24 +1,44 @@
-rule bwa_map:
+import itertools
+samples, = glob_wildcards("../data/samples/{sample}.fastq")
+groups = range(1,6)
+group_combinations = itertools.combinations(groups, 2)
+
+print(expand("3-groups/group{groups[0]}.txt", groups=group_combinations))
+
+rule all:
+    input: expand("4-differential_expression/group{groups[0]}_vs_group{groups[1]}.txt", groups=group_combinations)
+
+rule alignReads:
     input:
-        "data/genome.fa",
-        "data/samples/{sample}.fastq"
+        expand("../data/samples/{sample}.fastq", sample=samples),
+        "../data/genome.fa"
     output:
-        "mapped_reads/{sample}.bam"
+        "1-counts/{sample}-counts.txt"
     shell:
         "touch {output}"
 
-rule samtools_sort:
+rule mergeCounts:
     input:
-        "mapped_reads/{sample}.bam"
+        expand("1-counts/{sample}-counts.txt", sample=samples)
     output:
-        "sorted_reads/{sample}.bam"
+        "2-merged/counts.txt"
     shell:
         "touch {output}"
 
-rule samtools_index:
+rule splitGroups:
     input:
-        "sorted_reads/{sample}.bam"
+        "2-merged/counts.txt"
     output:
-        "sorted_reads/{sample}.bam.bai"
+        expand("3-groups/group{i}.txt", i=groups)
     shell:
         "touch {output}"
+
+rule differentialExpression:
+    input:
+        expand("3-groups/group{groups[0]}.txt", groups=group_combinations),
+        expand("3-groups/group{groups[1]}.txt", groups=group_combinations)
+    output:
+        expand("4-differential_expression/group{groups[0]}_vs_group{groups[1]}.txt", groups=group_combinations)
+    shell:
+        "touch {output}"
+
